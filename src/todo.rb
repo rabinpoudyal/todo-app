@@ -16,7 +16,7 @@ module ToDo
   end
 
   def self.run(count: 10, verbose: false)
-    puts "Running ToDo v#{ToDo::VERSION} with count: #{count} and verbose: #{verbose}"
+    puts "Running ToDo v#{ToDoApp::VERSION} with count: #{count} and verbose: #{verbose}"
     hydra = Typhoeus::Hydra.new
 
     even_numbers_generator(count).each do |even_number|

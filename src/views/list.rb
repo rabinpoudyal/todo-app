@@ -1,8 +1,11 @@
+# frozen_string_literal: true
 
 module List
-    class ListItem
-        
-        
+  class ListItem
+    def initialize; end
 
-    end
+    def list_item; end
+
+    def print; end
+  end
 end
