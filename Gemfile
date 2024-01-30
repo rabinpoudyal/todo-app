@@ -9,3 +9,5 @@ gem 'logger', '~> 1.6.0'
 gem 'oj', '~> 3.10.6'
 gem 'rubocop', '~> 0.49.1'
 gem 'typhoeus', '~> 1.4.1'
+
+gem 'rspec', '~> 3.10.0'

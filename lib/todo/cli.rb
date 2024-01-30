@@ -6,10 +6,12 @@ require 'singleton'
 require_relative '../../src/todo/version'
 require_relative '../../src/todo'
 require_relative '../todo/yaml'
+require_relative './component'
 
 module ToDo
   class CLI
     include Singleton
+    include ToDo::Component
 
     def parse_options(argv)
       opts = {}
@@ -19,9 +21,9 @@ module ToDo
     end
 
     def setup_options(args)
-      default_config = ToDo::Yaml.load(File.join(__dir__, 'config.yml'))
-      @logger = Logger.new($stdout)
+      default_config = Yaml.load('config.yml').transform_keys(&:to_sym)
       @config = parse_options(args)
+      @config = default_config.merge(@config)
     end
 
     def option_parser(opts)
@@ -42,7 +44,7 @@ module ToDo
 
       parser.banner = 'bin/todo [options]'
       parser.on_tail '-h', '--help', 'Show help' do
-        @logger.info parser.help
+        puts parser.help
         exit(0)
       end
 
@@ -50,6 +52,7 @@ module ToDo
     end
 
     def initialize_logger
+      @config.logger = ::Logger.new($stdout)
       @config.logger.level = ::Logger::DEBUG if @config[:verbose]
     end
 
@@ -60,7 +63,7 @@ module ToDo
 
     def run
       puts @config
-      ToDo.run(count: @config[:count], verbose: @config[:verbose])
+      ToDo::App.new(@config).run(count: @config[:count], verbose: @config[:verbose])
     end
   end
 end

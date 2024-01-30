@@ -1,2 +1,2 @@
-config:
-  default_count: 10
+count: 10
+verbose: false

@@ -6,39 +6,48 @@ require 'colorize'
 
 require_relative './constants'
 require_relative './todo/version'
+require_relative '../lib/todo/component'
 
 module ToDo
-  def self.even_numbers_generator(n)
-    (1..Float::INFINITY)
-      .lazy
-      .select(&:even?)
-      .take(n)
-  end
+  class App
+    include ToDo::Component
 
-  def self.run(count: 10, verbose: false)
-    puts "Running ToDo v#{ToDoApp::VERSION} with count: #{count} and verbose: #{verbose}"
-    hydra = Typhoeus::Hydra.new
+    def initialize(config)
+      @config = config
+    end
 
-    even_numbers_generator(count).each do |even_number|
-      request = Typhoeus::Request.new("#{BASE_URL}/#{even_number}")
-      hydra.queue(request)
-      request.on_complete do |response|
-        if response.success?
-          parsed_response = Oj.load(response.body)
-          if parsed_response['completed']
-            puts " ✔ #{parsed_response['title']}".green
+    def even_numbers_generator(n)
+      (1..Float::INFINITY)
+        .lazy
+        .select(&:even?)
+        .take(n)
+    end
+
+    def run(count: 10, verbose: false)
+      logger.log "Running ToDo v#{ToDoApp::VERSION} with count: #{count}"
+      hydra = Typhoeus::Hydra.new
+
+      even_numbers_generator(count).each do |even_number|
+        request = Typhoeus::Request.new("#{BASE_URL}/#{even_number}")
+        hydra.queue(request)
+        request.on_complete do |response|
+          if response.success?
+            parsed_response = Oj.load(response.body)
+            if parsed_response['completed']
+              puts " ✔ #{parsed_response['title']}".green
+            else
+              puts " ✘ #{parsed_response['title']}".red
+            end
+          elsif response.timed_out?
+            puts 'got a time out'
+          elsif response.code.zero?
+            puts response.return_message
           else
-            puts " ✘ #{parsed_response['title']}".red
+            puts "HTTP request failed: #{response.code}"
           end
-        elsif response.timed_out?
-          puts 'got a time out'
-        elsif response.code.zero?
-          puts response.return_message
-        else
-          puts "HTTP request failed: #{response.code}"
         end
       end
+      hydra.run
     end
-    hydra.run
   end
 end
