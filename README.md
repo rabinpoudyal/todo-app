@@ -47,3 +47,5 @@ bundle exec rspec
 
 # Future Development:
 This app can be enhanced furthur by following ways:
+- Adding more integrations with other services like `Jira`, `Trello` etc.
+- Adding more features like `create`, `update`, `delete` etc.
