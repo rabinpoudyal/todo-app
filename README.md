@@ -21,6 +21,11 @@ This app can be run in docker without the hassle of haivng to setup ruby for dev
 ```sh
 docker build .
 ```
+Once the image is built, use the docker run command to run the app.
+
+```sh
+docker run -it <image_id>
+```
 
 # Usage
 

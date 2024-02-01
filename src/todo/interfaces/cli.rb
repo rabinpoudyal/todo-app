@@ -3,15 +3,24 @@
 require 'optparse'
 require 'singleton'
 
-require_relative '../../src/todo/version'
-require_relative '../../src/todo'
-require_relative '../todo/yaml'
-require_relative './component'
+require 'todo'
+require 'todo/version'
+require 'todo/parsers/yaml'
+require 'todo/component'
+require 'todo/launcher'
 
 module ToDo
   class CLI
     include Singleton
     include ToDo::Component
+
+    attr_accessor :config
+
+    def parse(args = ARGV.dup)
+      @config ||= ToDo.default_configuration
+      setup_options(args)
+      initialize_logger
+    end
 
     def parse_options(argv)
       opts = {}
@@ -21,9 +30,8 @@ module ToDo
     end
 
     def setup_options(args)
-      default_config = Yaml.load('config.yml').transform_keys(&:to_sym)
-      @config = parse_options(args)
-      @config = default_config.merge(@config)
+      ops = parse_options(args)
+      @config.merge!(ops)
     end
 
     def option_parser(opts)
@@ -52,18 +60,16 @@ module ToDo
     end
 
     def initialize_logger
-      @config.logger = ::Logger.new($stdout)
       @config.logger.level = ::Logger::DEBUG if @config[:verbose]
     end
 
-    def parse(args = ARGV.dup)
-      setup_options(args)
-      initialize_logger
+    def run
+      launch
     end
 
-    def run
-      puts @config
-      ToDo::App.new(@config).run(count: @config[:count], verbose: @config[:verbose])
+    def launch
+      @launcher = ToDo::Launcher.new(@config)
+      @launcher.launch
     end
   end
 end

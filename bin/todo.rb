@@ -1,7 +1,9 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require_relative '../lib/todo/cli'
+$LOAD_PATH.unshift File.expand_path('../src', __dir__)
+
+require 'todo/interfaces/cli'
 
 begin
   cli = ToDo::CLI.instance
